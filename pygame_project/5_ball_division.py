@@ -1,5 +1,6 @@
 import pygame
 import os
+import sys
 ###################################################################
 # 기본 초기화 (반드시 해야 하는 것들)
 pygame.init()
@@ -14,6 +15,13 @@ pygame.display.set_caption("pang")
 
 # FPS
 clock = pygame.time.Clock()
+
+# Pyinstaller에서 파일 상대 경로를 인식시켜주기 위한 함수
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
+
 ###################################################################
 
 
@@ -22,15 +30,15 @@ current_path = os.path.dirname(__file__)
 image_path = os.path.join(current_path, "images") # images 폴더 위치 반환
 
 # 배경 만들기
-background = pygame.image.load(os.path.join(image_path, "background.png"))
+background = pygame.image.load(resource_path("./images/background.png"))
 
 # 스테이지 만들기
-stage = pygame.image.load(os.path.join(image_path, "stage.png"))
+stage = pygame.image.load(resource_path("./images/stage.png"))
 stage_size = stage.get_rect().size
 stage_height = stage_size[1] # 스테이지의 높이 위해 캐릭터 위치 사용
 
 # 캐릭터 만들기
-character = pygame.image.load(os.path.join(image_path, "character.png"))
+character = pygame.image.load(resource_path("./images/character.png"))
 character_size = character.get_rect().size
 character_width = character_size[0]
 character_height = character_size[1]
@@ -44,7 +52,7 @@ character_to_x = 0
 character_speed = 5
 
 # 무기 만들기
-weapon = pygame.image.load(os.path.join(image_path, "weapon.png"))
+weapon = pygame.image.load(resource_path("./images/weapon.png"))
 weapon_size = weapon.get_rect().size
 weapon_width = weapon_size[0]
 
@@ -56,14 +64,14 @@ weapon_speed = 10
 
 # 공 만들기 ( 4개 크기에 대해 따로 처리)
 ball_images = [
-    pygame.image.load(os.path.join(image_path, "balloon1.png")),
-    pygame.image.load(os.path.join(image_path, "balloon2.png")),
-    pygame.image.load(os.path.join(image_path, "balloon3.png")),
-    pygame.image.load(os.path.join(image_path, "balloon4.png")),
+    pygame.image.load(resource_path("./images/balloon1.png")),
+    pygame.image.load(resource_path("./images/balloon2.png")),
+    pygame.image.load(resource_path("./images/balloon3.png")),
+    pygame.image.load(resource_path("./images/balloon4.png")),
 ]
 
 # 공 크기에 따른 최초 스피드
-ball_speed_y = [-9, -6, -3, -1] # index 0, 1, 2, 3 에 해당하는 값
+ball_speed_y = [-20, -15, -10, -5] # index 0, 1, 2, 3 에 해당하는 값
 
 # 공들
 balls = []
@@ -117,7 +125,7 @@ while running:
     # 무기 위치 조정
     weapons = [ [w[0], w[1] - weapon_speed] for w in weapons] # 무기 위치를 위로 올린다
 
-    # 천장에 닿은 무기 없애기
+     # 천장에 닿은 무기 없애기
     weapons = [ [w[0], w[1]] for w in weapons if w[1] > 0]
 
     # 공 위치 정의
@@ -189,27 +197,46 @@ while running:
                     ball_height = ball_rect.size[1]
 
                     # 나눠진 공 정보
-                    small_ball_rect = ball_images[ball_img_idx + 1].get_rect()
+                    #small_ball_rect = ball_images[ball_img_idx + 1].get_rect()
+                    small_ball_rect = ball_images[0].get_rect()
                     small_ball_width = small_ball_rect.size[0]
                     small_ball_height = small_ball_rect.size[1]
-
-                    # 왼쪽으로 튕겨나가는 작은 공
-                    balls.append({
-                        "pos_x" : ball_pos_x + (ball_width / 2) - (small_ball_width / 2),
-                        "pos_y" : ball_pos_y + (ball_height / 2) - (small_ball_height / 2),
-                        "img_idx" : ball_img_idx + 1,
-                        "to_x" : -3,
-                        "to_y" : -6,
-                        "init_spd_y" : ball_speed_y[ball_img_idx + 1]
-                    })
-                    # 오른쪽으로 튕겨나가는 작은 공
+                    print(small_ball_rect)
+                    # # 왼쪽으로 튕겨나가는 작은 공
+                    # balls.append({
+                    #     "pos_x" : ball_pos_x + (ball_width / 2) - (small_ball_width / 2),
+                    #     "pos_y" : ball_pos_y + (ball_height / 2) - (small_ball_height / 2),
+                    #     "img_idx" : ball_img_idx + 1,
+                    #     "to_x" : -3,
+                    #     "to_y" : -6,
+                    #     "init_spd_y" : ball_speed_y[ball_img_idx + 1]
+                    # })
+                    # # 오른쪽으로 튕겨나가는 작은 공
+                    # balls.append({
+                    #     "pos_x": ball_pos_x + (ball_width / 2) - (small_ball_width / 2),
+                    #     "pos_y": ball_pos_y + (ball_height / 2) - (small_ball_height / 2),
+                    #     "img_idx": ball_img_idx + 1,
+                    #     "to_x": 3,
+                    #     "to_y": -6,
+                    #     "init_spd_y": ball_speed_y[ball_img_idx + 1]
+                    # })
+                    # 왼쪽으로 튕겨나가는 개선의뢰서
                     balls.append({
                         "pos_x": ball_pos_x + (ball_width / 2) - (small_ball_width / 2),
                         "pos_y": ball_pos_y + (ball_height / 2) - (small_ball_height / 2),
-                        "img_idx": ball_img_idx + 1,
+                        "img_idx": 1,
+                        "to_x": -3,
+                        "to_y": -6,
+                        "init_spd_y": ball_speed_y[1]
+                    })
+                    # 오른쪽으로 튕겨나가는 개선의뢰서
+                    balls.append({
+                        "pos_x": ball_pos_x + (ball_width / 2) - (small_ball_width / 2),
+                        "pos_y": ball_pos_y + (ball_height / 2) - (small_ball_height / 2),
+                        "img_idx": 1,
                         "to_x": 3,
                         "to_y": -6,
-                        "init_spd_y": ball_speed_y[ball_img_idx + 1]
+                        "init_spd_y": ball_speed_y[1]
                     })
                 break
 
